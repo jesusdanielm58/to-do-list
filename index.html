@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>to do list</title>
+	<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+	<style type="text/css">
+		*{
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		body{
+			font-family: arial;
+			background-image: linear-gradient(#35495e,#41b883);
+			background-size:auto,cover;
+			background-attachment: fixed;
+			color: #41b883;
+			font-weight: bold;
+		}
+		#main{
+			width: 70%;
+			padding: 20px;
+			background-color: white;
+			margin: 25px auto;
+		}
+		h1{text-align: center;}
+		h2{
+			text-transform: capitalize;
+			margin: 20px 0 10px 0;
+			font-size: 1.4em;
+		}
+		input{
+			padding: 10px 0px 10px 10px;
+		}
+		button{
+			cursor: pointer;
+			background-color: #41b883;
+			color: white;
+			border: none;
+			outline: none;
+			height: 38px;
+			padding: 0 15px;
+		}
+		button:active{
+			background-color: #3ac789;
+		}
+		li{
+			width: 100%;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border:1px solid rgba(0,0,0,0.3);
+			border-top: none;
+			padding-left: 10px;
+			height: 50px;
+		}
+		li:first-child{
+			border-top: 1px solid rgba(0,0,0,0.3);
+		}
+		li:hover{
+			background-color: #eeeeee
+		}
+		li div{
+			height: 100%;
+		}
+		li button{
+			height: 100%;
+			width: 47px;
+			border-right: 1px solid rgba(0,0,0,0.2);
+			font-size: 23px;
+		}
+	</style>
+</head>
+<body>
+	<div id="main">
+		<h1>To do list</h1>
+		<h2 >add task</h2>
+		<input type="text" name="" placeholder="description" v-model="descripcion">
+		<button v-on:click="agregar">add</button>
+		<h2 v-if="haycompletadas">incomplete task</h2>
+		<ul>
+			<li v-for="x in nocompletadas">{{x.descripcion}}<div><button v-on:click="cambiarestado(x)" title="complete"><b>✓</b></button><button v-on:click="borrar(x)" title="delete task"><b>🗑</b></button></div></li>
+		</ul>
+		<h2 v-if=haynocompletadas>complete task</h2>
+			<ul>
+				<li v-for="y in completadas" >{{y.descripcion}}	<div><button v-on:click="cambiarestado(y)" title="incomplete"><b><p>❌</p></b></button><button v-on:click="borrar(y)" title="delete task"><b>🗑</b></button></div></li>
+			</ul>
+	</div>
+	<script type="text/javascript">
+		new Vue({
+			el:"#main",
+			data:{
+				tareas:[
+				{descripcion:"eat things",estado:false},
+				{descripcion:"sleep",estado:false},
+				{descripcion:"work out",estado:true},
+				{descripcion:"play things",estado:false},
+				{descripcion:"study things",estado:true},
+				],
+				haynocompletadas:true,
+				haycompletadas:true,
+				descripcion:""
+			},methods:{
+				cambiarestado(x){
+					x.estado=!x.estado;
+					this.savelocal();
+				},agregar(){
+					if(this.descripcion!="" && !this.tareas.some(x=>x.descripcion==this.descripcion))
+					this.tareas.push({descripcion:this.descripcion,estado:false})
+					this.descripcion="";
+					this.savelocal()
+				},
+				borrar(x){
+					this.tareas=this.tareas.filter(y=>y.descripcion!=x.descripcion)
+					this.savelocal();
+				},
+				savelocal(){
+					localStorage.setItem("tareas", JSON.stringify(this.tareas));
+				}
+			}
+			,computed:{
+				nocompletadas(){
+					if(this.tareas.filter(x=>x.estado).length==0){
+						this.haynocompletadas=false;
+					}else{this.haynocompletadas=true}
+					return this.tareas.filter(x=>!x.estado)
+				},
+				completadas(){
+					if(this.tareas.filter(x=>!x.estado).length==0){
+						this.haycompletadas=false;
+					}else{this.haycompletadas=true}
+					return this.tareas.filter(x=>x.estado)
+				}
+			},mounted() {
+				if (localStorage.getItem('tareas')) this.tareas = JSON.parse(localStorage.getItem('tareas'));
+				this.savelocal();
+				}
+		})
+	</script>
+</body>
+</html>
